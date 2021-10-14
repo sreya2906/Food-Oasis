@@ -1,0 +1,1 @@
+Food Oasis is an Android app that lets users search for healthy food options, such as grocery stores or farmers' markets, in their vicinity. Users can also save locations as "favorites" and get notified weekly with any weekly ads published by these locations.
