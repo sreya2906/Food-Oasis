@@ -35,7 +35,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean locationPermissionGranted;
     private ActivityMapsBinding binding;
 
-    private final LatLng defaultLocation = new LatLng(-34, 151);
+    private final LatLng defaultLocation = new LatLng(30, -95);
     private static final int DEFAULT_ZOOM = 10;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
