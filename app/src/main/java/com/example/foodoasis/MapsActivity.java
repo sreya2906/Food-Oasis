@@ -126,6 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onPlaceSelected(@NonNull Place place) {
                 inputLocation = place.getLatLng();
+                nearInputButton.setEnabled(true);
                 Log.i("FoodOasis", "Selected location: " + place.getName() + ", " + place.getId());
             }
         });
@@ -147,7 +148,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         nearInputButton.setOnClickListener(view -> {
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
+                    "location=" + inputLocation.latitude + "," + inputLocation.longitude + //location with latitude and longitude
+                    "&keyword=grocery_store" +
+                    "&maxprice=3" + //exclude expensive results
+                    "&radius=10000" + // radius
+                    "&key=" + getResources().getString(R.string.google_map_key); // google Api key
 
+            Log.d("Url", url);
+
+            new PlaceTask().execute(url);
         });
     }
 
@@ -161,6 +171,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationEntry = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry);
         nearCurrentButton = findViewById(R.id.nearCurrentButton);
         nearInputButton = findViewById(R.id.nearInputButton);
+        nearInputButton.setEnabled(false);
     }
 
 
