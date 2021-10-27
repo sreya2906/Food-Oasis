@@ -63,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private PlacesClient placesClient;
+    private String apiKey = BuildConfig.MAPS_API_KEY;
     private ActivityMapsBinding binding;
     private ActivityResultLauncher<String[]> locationPermissionRequest;
     private FusedLocationProviderClient fusedLocationClient;
@@ -71,7 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker userLocationMarker;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
-    private Button btnFind;
+    private Button nearCurrentButton;
 
 
     @Override
@@ -130,10 +131,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         // Sets events on clicking button
-        btnFind.setOnClickListener(new View.OnClickListener() {
+        nearCurrentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LatLng targetLocation;
 
                 //Set url
                 String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
@@ -155,10 +155,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
 
         // initilization
-        Places.initialize(getApplicationContext(), getResources().getString(R.string.google_map_key));
-        placesClient = Places.createClient(getApplicationContext());
+        Places.initialize(getApplicationContext(), "AIzaSyCL5kLf11wFcqlPmQm4JYIUCfVvh9pnS0U");
+        placesClient = Places.createClient(this);
         locationEntry = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry);
-        btnFind = (Button) findViewById(R.id.btnFind);
+        nearCurrentButton = (Button) findViewById(R.id.nearCurrentButton);
     }
 
 

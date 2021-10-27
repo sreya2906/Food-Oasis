@@ -7,6 +7,19 @@
     android:orientation="vertical"
     tools:context=".MapsActivity">
 
+    <Button
+        android:id="@+id/nearCurrentButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Search Near Your Location" />
+
+    <TextView
+        android:id="@+id/searchElsewhereText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Or Search Near Elsewhere"
+        android:textAlignment="center"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,16 +27,12 @@
         android:padding="10dp"
         android:background="@color/white">
 
-
-        <androidx.cardview.widget.CardView
+        <fragment
+            android:id="@+id/locationEntry"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent">
-            <fragment
-                android:id="@+id/locationEntry"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"/>
-        </androidx.cardview.widget.CardView>
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/btnFind"
