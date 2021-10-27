@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Food Oasis</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="search_title">search_title</string>
+    <string name="title_activity_maps">Food Oasis</string>
+    <string name="google_map_key">AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk</string>
+
 </resources>
