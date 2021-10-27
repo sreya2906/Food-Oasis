@@ -72,7 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker userLocationMarker;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
-    private Button nearCurrentButton;
+    private Button nearCurrentButton, nearInputButton;
 
 
     @Override
@@ -131,22 +131,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         // Sets events on clicking button
-        nearCurrentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        nearCurrentButton.setOnClickListener(view -> {
 
-                //Set url
-                String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
-                        "location=" + userLocation.latitude + "," + userLocation.longitude + //location with latitude and longitude
-                        "&keyword=grocery_store" +
-                        "&maxprice=3" + //exclude expensive results
-                        "&radius=10000" + // radius
-                        "&key=" + getResources().getString(R.string.google_map_key); // google Api key
+            //Set url
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
+                    "location=" + userLocation.latitude + "," + userLocation.longitude + //location with latitude and longitude
+                    "&keyword=grocery_store" +
+                    "&maxprice=3" + //exclude expensive results
+                    "&radius=10000" + // radius
+                    "&key=" + getResources().getString(R.string.google_map_key); // google Api key
 
-                Log.d("Url",url);
+            Log.d("Url",url);
 
-                new PlaceTask().execute(url);
-            }
+            new PlaceTask().execute(url);
+        });
+
+        nearInputButton.setOnClickListener(view -> {
+
         });
     }
 
@@ -155,10 +156,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
 
         // initilization
-        Places.initialize(getApplicationContext(), "AIzaSyCL5kLf11wFcqlPmQm4JYIUCfVvh9pnS0U");
+        Places.initialize(getApplicationContext(), apiKey);
         placesClient = Places.createClient(this);
         locationEntry = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry);
-        nearCurrentButton = (Button) findViewById(R.id.nearCurrentButton);
+        nearCurrentButton = findViewById(R.id.nearCurrentButton);
+        nearInputButton = findViewById(R.id.nearInputButton);
     }
 
 
