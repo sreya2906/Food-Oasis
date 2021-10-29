@@ -11,7 +11,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,7 +20,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -34,8 +32,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.foodoasis.databinding.ActivityMapsBinding;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -261,7 +257,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         protected List<HashMap<String, String>> doInBackground(String... strings) {
-            NearByPlacesFromUser nearLocatedPlacesFromGoogleMap = new NearByPlacesFromUser();
+            PlaceResult nearLocatedPlacesFromGoogleMap = new PlaceResult();
             List<HashMap<String, String>> mapList = null;
             JSONObject jsonObject = null;
             try {
