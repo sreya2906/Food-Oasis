@@ -10,19 +10,10 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,8 +27,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.foodoasis.databinding.ActivityMapsBinding;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -53,7 +42,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationEntry.setCountries("US");
 
         // Place autocomplete return data
-        locationEntry.setPlaceFields(Arrays.asList(Place.Field.LAT_LNG));
+        locationEntry.setPlaceFields(Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG));
 
         // Event on place selection
         locationEntry.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -169,6 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Places.initialize(getApplicationContext(), apiKey);
         placesClient = Places.createClient(this);
         locationEntry = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry);
+        locationEntry.setHint("Search near...");
         nearCurrentButton = findViewById(R.id.nearCurrentButton);
         nearInputButton = findViewById(R.id.nearInputButton);
         nearInputButton.setEnabled(false);
@@ -292,7 +281,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         protected List<HashMap<String, String>> doInBackground(String... strings) {
-            NearByPlacesFromUser nearLocatedPlacesFromGoogleMap = new NearByPlacesFromUser();
+            PlaceResult nearLocatedPlacesFromGoogleMap = new PlaceResult();
             List<HashMap<String, String>> mapList = null;
             JSONObject jsonObject = null;
             try {
