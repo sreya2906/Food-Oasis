@@ -5,5 +5,6 @@
     <string name="search">Search</string>
     <string name="nearCurrentButtonText">Search Near Your Location</string>
     <string name="orText">Or Search Near Elsewhere</string>
+    <string name="add_to_favorites">Add to Favorites</string>
 
 </resources>

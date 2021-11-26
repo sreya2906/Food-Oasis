@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.foodoasis.databinding.ActivityMapsBinding;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
@@ -45,6 +47,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -60,10 +63,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient fusedLocationClient;
     private LatLng userLocation = new LatLng(30, -95);
     private LatLng inputLocation;
-    private LatLng selectedMarkerLocation;
+    private String selectedMarkerPlaceId;
+    private ArrayList<Place> favoriteLocations;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
-    private Button nearCurrentButton, nearInputButton;
+    private Button nearCurrentButton, nearInputButton, addToFavoritesButton;
 
 
     @Override
@@ -152,6 +156,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             new PlaceTask().execute(url);
         });
+
+        addToFavoritesButton.setOnClickListener(view -> {
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+            FetchPlaceRequest request = FetchPlaceRequest.newInstance(selectedMarkerPlaceId, placeFields);
+            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                Place place = response.getPlace();
+                if (!favoriteLocations.contains(place)) {
+                    favoriteLocations.add(place);
+                    Log.i("FoodOasis", place.getName() + " added to favorites");
+                }
+                else {
+                    Log.i("FoodOasis", "Place already in favorites");
+                }
+            });
+        });
     }
 
     private void initializationVariables() {
@@ -166,6 +185,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         nearCurrentButton = findViewById(R.id.nearCurrentButton);
         nearInputButton = findViewById(R.id.nearInputButton);
         nearInputButton.setEnabled(false);
+        addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
+        addToFavoritesButton.setEnabled(false);
+        favoriteLocations = new ArrayList<Place>();
     }
 
 
@@ -224,13 +246,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
 
         // Marker click listener to enable favorite location button
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(@NonNull Marker marker) {
-                selectedMarkerLocation = marker.getPosition();
-                Log.d("MapsActivity", "Selected marker at " + selectedMarkerLocation.latitude + ", " + selectedMarkerLocation.longitude);
-                return false;
-            }
+        mMap.setOnMarkerClickListener(marker -> {
+            selectedMarkerPlaceId = (String) marker.getTag();
+            Log.d("MapsActivity", "Selected place ID: " + selectedMarkerPlaceId);
+            addToFavoritesButton.setEnabled(true);
+            return false;
+        });
+
+        mMap.setOnMapClickListener(latLng -> {
+            addToFavoritesButton.setEnabled(false);
         });
     }
 
@@ -277,7 +301,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         while ((line = bufferedReader.readLine()) != null) {
             stringBuilder.append(line);
-//            Log.e("line in buffer read: ",line.toString());
         }
 
         String data = stringBuilder.toString();
@@ -286,7 +309,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return data;
     }
 
-    // For parsing fetched data from googel api
+    // For parsing fetched data from google api
     public class ParserTask extends AsyncTask<String, Integer, List<HashMap<String, String>>> {
 
         @Override
@@ -297,8 +320,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 jsonObject = new JSONObject(strings[0]);
                 mapList = nearLocatedPlacesFromGoogleMap.parseResult(jsonObject);
-//                Log.e("mapList of json parser:", mapList.toString());
-//                Log.e("json object: ", jsonObject.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -309,7 +330,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
             mMap.clear();
 
-            //after getting nearer stores show them on google map
+            //after getting nearest stores show them on google map
             for (int i = 0; i < hashMaps.size(); i++) {
                 HashMap<String, String> hashMap = hashMaps.get(i);
 
@@ -324,9 +345,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 MarkerOptions mMarker = new MarkerOptions(); // new marker
                 mMarker.position(latLng); // set marker
                 mMarker.title(name);
-                mMap.addMarker(mMarker);
-
-
+                Marker newMarker = mMap.addMarker(mMarker);
+                newMarker.setTag(place_id);
             }
 
         }
