@@ -102,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationEntry.setCountries("US");
 
         // Place autocomplete return data
-        locationEntry.setPlaceFields(Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG));
+        locationEntry.setPlaceFields(Arrays.asList(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG));
 
         // Event on place selection
         locationEntry.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -113,7 +113,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onPlaceSelected(@NonNull Place place) {
+                locationEntry.setText(place.getName());
                 inputLocation = place.getLatLng();
+                onLocationChanged(inputLocation);
                 nearInputButton.setEnabled(true);
                 Log.i("FoodOasis", "Selected location: " + place.getName() + ", " + place.getId());
             }
@@ -173,18 +175,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (location != null) {
                 userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                 Log.d("MapsActivity", "User location set to " + location.getLatitude() + ", " + location.getLongitude());
-                onLocationChanged();
+                onLocationChanged(userLocation);
             } else {
                 Log.d("MapsActivity", "Current location is null");
             }
         });
     }
 
-    private void onLocationChanged() {
+    private void onLocationChanged(LatLng newLocation) {
         // Add a marker in user's current location (or default location) and move the camera
-        userLocationMarker.setPosition(userLocation);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
-        Log.d("MapsActivity", "Marker moved to " + userLocation.latitude + ", " + userLocation.longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 13));
+        Log.d("MapsActivity", "Marker moved to " + newLocation.latitude + ", " + newLocation.longitude);
     }
 
 
@@ -217,8 +218,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         // set value of makrer of map
-        userLocationMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
 
 
         Log.d("MapsActivity", "Marker placed at " + userLocation.latitude + ", " + userLocation.longitude);
