@@ -14,13 +14,11 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -32,6 +30,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.foodoasis.databinding.ActivityMapsBinding;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -50,15 +53,17 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private PlacesClient placesClient;
+    private String apiKey = BuildConfig.MAPS_API_KEY;
     private ActivityMapsBinding binding;
     private ActivityResultLauncher<String[]> locationPermissionRequest;
     private FusedLocationProviderClient fusedLocationClient;
     private LatLng userLocation = new LatLng(30, -95);
+    private LatLng inputLocation;
     private Marker userLocationMarker;
     private SupportMapFragment mapFragment;
-    private Spinner typeSpinner;
-    private Button btnFind;
-    ArrayList<String> listType, listName;
+    private AutocompleteSupportFragment locationEntry;
+    private Button nearCurrentButton, nearInputButton;
 
 
     @Override
@@ -96,26 +101,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        // Sets events on clicking button
-        btnFind.setOnClickListener(new View.OnClickListener() {
+        // Place autocomplete field filters
+        locationEntry.setCountries("US");
+
+        // Place autocomplete return data
+        locationEntry.setPlaceFields(Arrays.asList(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG));
+
+        // Event on place selection
+        locationEntry.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onClick(View view) {
-
-                //Get selected item on Spinner
-                int i = typeSpinner.getSelectedItemPosition();
-                Log.d("log","pressed"+ i + typeSpinner.getSelectedItem().toString());
-
-                //Set url
-                String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
-                        "location=" + userLocation.latitude + "," + userLocation.longitude + //location with latitude and longitude
-                        "&radius=10000" + // radius
-                        "&type=" + listType.get(i).toString() + // search type
-                        "&key=" + getResources().getString(R.string.google_map_key); // google Api key
-
-                Log.d("Url",url);
-
-                new PlaceTask().execute(url);
+            public void onError(@NonNull Status status) {
+                Log.i("FoodOasis", "An error occurred: " + status);
             }
+
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                locationEntry.setText(place.getName());
+                inputLocation = place.getLatLng();
+                onLocationChanged(inputLocation);
+                nearInputButton.setEnabled(true);
+                Log.i("FoodOasis", "Selected location: " + place.getName() + ", " + place.getId());
+            }
+        });
+
+        // Sets events on clicking button
+        nearCurrentButton.setOnClickListener(view -> {
+
+            //Set url
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
+                    "location=" + userLocation.latitude + "," + userLocation.longitude + //location with latitude and longitude
+                    "&keyword=grocery_store" +
+                    "&maxprice=3" + //exclude expensive results
+                    "&radius=10000" + // radius
+                    "&key=" + getResources().getString(R.string.google_map_key); // google Api key
+
+            Log.d("Url",url);
+
+            new PlaceTask().execute(url);
+        });
+
+        nearInputButton.setOnClickListener(view -> {
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
+                    "location=" + inputLocation.latitude + "," + inputLocation.longitude + //location with latitude and longitude
+                    "&keyword=grocery_store" +
+                    "&maxprice=3" + //exclude expensive results
+                    "&radius=10000" + // radius
+                    "&key=" + getResources().getString(R.string.google_map_key); // google Api key
+
+            Log.d("Url", url);
+
+            new PlaceTask().execute(url);
         });
     }
 
@@ -124,19 +159,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
 
         // initilization
-        typeSpinner = (Spinner) findViewById(R.id.typeSpinner);
-        btnFind = (Button) findViewById(R.id.btnFind);
-
-        // type place list
-        listType = new ArrayList<>();
-        listType.add("grocery_or_supermarket");
-
-        // Display place list
-        listName = new ArrayList<>();
-        listName.add("Grocery Store");
-
-        setAdapter(typeSpinner,listName);
-
+        Places.initialize(getApplicationContext(), apiKey);
+        placesClient = Places.createClient(this);
+        locationEntry = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry);
+        locationEntry.setHint("Search near...");
+        nearCurrentButton = findViewById(R.id.nearCurrentButton);
+        nearInputButton = findViewById(R.id.nearInputButton);
+        nearInputButton.setEnabled(false);
     }
 
 
@@ -149,18 +178,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (location != null) {
                 userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                 Log.d("MapsActivity", "User location set to " + location.getLatitude() + ", " + location.getLongitude());
-                onLocationChanged();
+                onLocationChanged(userLocation);
             } else {
                 Log.d("MapsActivity", "Current location is null");
             }
         });
     }
 
-    private void onLocationChanged() {
+    private void onLocationChanged(LatLng newLocation) {
         // Add a marker in user's current location (or default location) and move the camera
-        userLocationMarker.setPosition(userLocation);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
-        Log.d("MapsActivity", "Marker moved to " + userLocation.latitude + ", " + userLocation.longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 13));
+        Log.d("MapsActivity", "Marker moved to " + newLocation.latitude + ", " + newLocation.longitude);
     }
 
 
@@ -193,8 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         // set value of makrer of map
-        userLocationMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Your Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
 
 
         Log.d("MapsActivity", "Marker placed at " + userLocation.latitude + ", " + userLocation.longitude);
@@ -297,25 +324,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     }
-
-    // Set adapter for spinner and bind items with it
-    private void setAdapter(Spinner spinner, ArrayList<String> listType) {
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MapsActivity.this, R.layout.layout_spinner, R.id.txt_view, listType) {
-
-
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view; // gives better look to spinner
-
-                tv.setTextColor(Color.WHITE);
-
-                return view;
-            }
-        };
-        arrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
-        spinner.setAdapter(arrayAdapter);
-    }
-
 }
