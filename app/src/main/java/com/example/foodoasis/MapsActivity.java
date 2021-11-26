@@ -60,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient fusedLocationClient;
     private LatLng userLocation = new LatLng(30, -95);
     private LatLng inputLocation;
+    private LatLng selectedMarkerLocation;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
     private Button nearCurrentButton, nearInputButton;
@@ -222,8 +223,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // set value of marker of map
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
 
-
-        Log.d("MapsActivity", "Marker placed at " + userLocation.latitude + ", " + userLocation.longitude);
+        // Marker click listener to enable favorite location button
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                selectedMarkerLocation = marker.getPosition();
+                Log.d("MapsActivity", "Selected marker at " + selectedMarkerLocation.latitude + ", " + selectedMarkerLocation.longitude);
+                return false;
+            }
+        });
     }
 
     @SuppressLint("MissingSuperCall")
