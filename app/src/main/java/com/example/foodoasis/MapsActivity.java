@@ -60,7 +60,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient fusedLocationClient;
     private LatLng userLocation = new LatLng(30, -95);
     private LatLng inputLocation;
-    private Marker userLocationMarker;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
     private Button nearCurrentButton, nearInputButton;
@@ -158,7 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-        // initilization
+        // initialization
         Places.initialize(getApplicationContext(), apiKey);
         placesClient = Places.createClient(this);
         locationEntry = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry);
@@ -220,7 +219,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // set map type
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        // set value of makrer of map
+        // set value of marker of map
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
 
 
