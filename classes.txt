@@ -1,1 +1,6 @@
-Location: a class which represents a location found by a search. Contains information received from the Places API such as name, address, website. Users' favorite locations will be stored in a list of Locations.
+MapsActivity: The main class of our app, which will include events for elements in the layout that includes the map view.
+SplashScreenActivity: An AppCompatActivity that occurs on app launch, showing the splash screen for the app.
+PlaceTask: An asynchronous task which sends a query url to the Google Maps API
+ParserTask: An asynchronous task which parses data fetched from the Google Maps API
+PlaceResult: Class that holds the JSONArray of data to be parsed and methods to do so.
+FoodLocation: a class which represents a location found by a search. Contains information received from the Places API such as name, address, website. Users' favorite locations will be stored in a list of Locations. Include a method to check if it is a valid location to get healthy food from.
