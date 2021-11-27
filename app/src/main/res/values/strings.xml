@@ -2,5 +2,9 @@
     <string name="app_name">Food Oasis</string>
     <string name="title_activity_maps">Food Oasis</string>
     <string name="google_map_key">AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk</string>
+    <string name="search">Search</string>
+    <string name="nearCurrentButtonText">Search Near Your Location</string>
+    <string name="orText">Or Search Near Elsewhere</string>
+    <string name="add_to_favorites">Add to Favorites</string>
 
 </resources>

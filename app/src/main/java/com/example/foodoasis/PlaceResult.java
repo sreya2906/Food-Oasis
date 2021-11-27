@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 // class fro parsing data which are fetched from Google Api
-public class NearByPlacesFromUser {
+public class PlaceResult {
     private HashMap<String, String> parseJsonObject(JSONObject object) {
         HashMap<String, String> dataList = new HashMap<>();
         try {
