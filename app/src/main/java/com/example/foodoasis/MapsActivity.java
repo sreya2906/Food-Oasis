@@ -61,7 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private PlacesClient placesClient;
-    private String apiKey = "AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk";
+    private final String apiKey = "AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk";
     private ActivityMapsBinding binding;
     private ActivityResultLauncher<String[]> locationPermissionRequest;
     private FusedLocationProviderClient fusedLocationClient;
@@ -183,9 +183,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.e("status",status+"");
                     if (status==1) {
                         FavoritesPlaces favoritesPlaces = new FavoritesPlaces();
-                        favoritesPlaces.setPlaceName(place.getName().toString());
+                        favoritesPlaces.setPlaceName(place.getName());
                         favoritesPlaces.setWebsite(place.getWebsiteUri().toString());
-                        favoritesPlaces.setPhoneNumber(place.getPhoneNumber().toString());
+                        favoritesPlaces.setPhoneNumber(place.getPhoneNumber());
                         favoritesPlaces.setLatitude(latLng.latitude + "");
                         favoritesPlaces.setLongitude(latLng.longitude + "");
                         db.addLocation(favoritesPlaces);
