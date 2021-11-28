@@ -9,7 +9,7 @@ android:
     - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
-    - sys-img-armeabi-v7a-google_apis-24
+    - sys-img-armeabi-v7a-google_apis-22
 
 env:
   global:
@@ -29,10 +29,10 @@ before_install:
 before_script:
   - touch local.properties
   - echo "MAPS_API_KEY=apikey" >> local.properties
-  - echo "y" | android update sdk -a --no-ui --filter android-24
-  - echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-google_apis-24
+  - echo "y" | android update sdk -a --no-ui --filter android-22
+  - echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-google_apis-22
   - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-  - echo no | android create avd --force -n test -t android-24 --abi google_apis/armeabi-v7a
+  - echo no | android create avd --force -n test -t android-22 --abi google_apis/armeabi-v7a
   - emulator -avd test -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
