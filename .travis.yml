@@ -11,6 +11,9 @@ android:
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-24
 
+before_install:
+  - chmod +x gradlew
+
 script:
   - ./gradlew clean build
   - ./gradlew test
