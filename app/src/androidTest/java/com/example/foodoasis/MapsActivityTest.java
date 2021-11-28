@@ -76,6 +76,11 @@ public class MapsActivityTest {
     }
 
     @Test
+    public void userLocationTest() {
+        assertNotNull(mActivityTestRule.getActivity().userLocation);
+    }
+
+    @Test
     public void searchTest() throws IOException {
         String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=29.7604267,-95.3698028&keyword=grocery_store&maxprice=3&radius=10000&key=AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk";
         String result = mActivityTestRule.getActivity().downloadUrl(url);
