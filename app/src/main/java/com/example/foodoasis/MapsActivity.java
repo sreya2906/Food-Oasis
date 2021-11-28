@@ -3,24 +3,18 @@ package com.example.foodoasis;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -51,7 +45,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -59,20 +52,18 @@ import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    public GoogleMap googleMap;
     private PlacesClient placesClient;
     private final String apiKey = "AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk";
     private ActivityMapsBinding binding;
     private ActivityResultLauncher<String[]> locationPermissionRequest;
     private FusedLocationProviderClient fusedLocationClient;
-    private LatLng userLocation = new LatLng(30, -95);
+    public LatLng userLocation = new LatLng(30, -95);
     private LatLng inputLocation;
-    private String selectedMarkerPlaceId;
-    private ArrayList<Place> favoriteLocationsList;
+    public String selectedMarkerPlaceId;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
     private Button nearCurrentButton, nearInputButton, addToFavoritesButton, showFavoriteButton;
-    FavoritesPlaces favoritesPlaces;
     DatabseAdapter db;
 
 
@@ -87,7 +78,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // initialization Variables
         initializationVariables();
 
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment.getMapAsync(this);
 
@@ -96,19 +86,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         locationPermissionRequest = registerForActivityResult(new ActivityResultContracts
                 .RequestMultiplePermissions(), result -> {
-            Boolean fineLocationGranted = result.get(Manifest.permission.ACCESS_FINE_LOCATION);
-            Boolean coarseLocationGranted = result.get(Manifest.permission.ACCESS_COARSE_LOCATION);
-            if ((fineLocationGranted != null && fineLocationGranted) ||
-                    (coarseLocationGranted != null && coarseLocationGranted)) {
-
-
-                getCurrentLocation();
-
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                }
-                mMap.setMyLocationEnabled(true);
-                mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
+            Boolean coarseLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
+            Log.d("FoodOasis", "Request sent");
+            if (fineLocationGranted != null && fineLocationGranted) {
+                onPermissionsGranted();
+                recreate();
+            }
+            else {
+                nearCurrentButton.setEnabled(false);
             }
         });
 
@@ -171,34 +157,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             FetchPlaceRequest request = FetchPlaceRequest.newInstance(selectedMarkerPlaceId, placeFields);
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
-//                if (!favoriteLocationsList.contains(place)) {
-//                    favoriteLocationsList.add(place);
-                    LatLng latLng = place.getLatLng();
-                    String latitude = latLng.latitude + "";
-                    String longitude = latLng.longitude + "";
+                LatLng latLng = place.getLatLng();
+                String latitude = latLng.latitude + "";
+                String longitude = latLng.longitude + "";
 
-                    int status;
+                int status;
 
-                    status = db.checkLocation(latitude, longitude);
-                    Log.e("status",status+"");
-                    if (status==1) {
-                        FavoritesPlaces favoritesPlaces = new FavoritesPlaces();
-                        favoritesPlaces.setPlaceName(place.getName());
-                        favoritesPlaces.setWebsite(place.getWebsiteUri().toString());
-                        favoritesPlaces.setPhoneNumber(place.getPhoneNumber());
-                        favoritesPlaces.setLatitude(latLng.latitude + "");
-                        favoritesPlaces.setLongitude(latLng.longitude + "");
-                        db.addLocation(favoritesPlaces);
-                        Toast.makeText(MapsActivity.this, "Successfully added to Favorites", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
-                        Log.d("FoodOasis", "Place already in favorites");
-                    }
-//                } else {
-//                    Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
-//                    Log.d("FoodOasis", "Place already in favorites");
-//                }
+                status = db.checkLocation(latitude, longitude);
+                Log.e("status",status+"");
+                if (status==1) {
+                    FavoritesPlaces favoritesPlaces = new FavoritesPlaces();
+                    favoritesPlaces.setPlaceName(place.getName());
+                    favoritesPlaces.setWebsite(place.getWebsiteUri().toString());
+                    favoritesPlaces.setPhoneNumber(place.getPhoneNumber());
+                    favoritesPlaces.setLatitude(latLng.latitude + "");
+                    favoritesPlaces.setLongitude(latLng.longitude + "");
+                    db.addLocation(favoritesPlaces);
+                    Toast.makeText(MapsActivity.this, "Successfully added to Favorites", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
+                    Log.d("FoodOasis", "Place already in favorites");
+                }
             });
         });
         showFavoriteButton.setOnClickListener(new View.OnClickListener() {
@@ -206,12 +186,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Intent intent = new Intent(MapsActivity.this, FavoritesPlacesActivity.class);
                 startActivity(intent);
-
             }
         });
     }
 
-    private void initializationVariables() {
+    protected void initializationVariables() {
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
@@ -226,14 +205,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
         showFavoriteButton = findViewById(R.id.showFavoriteButton);
         addToFavoritesButton.setEnabled(false);
-        favoriteLocationsList = new ArrayList<Place>();
         db = new DatabseAdapter(MapsActivity.this);
     }
 
 
     @SuppressLint("MissingPermission")
-    private void getCurrentLocation() {
-
+    protected LatLng getCurrentLocation() {
         // get current location
         fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
                 null).addOnSuccessListener(this, location -> {
@@ -245,14 +222,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d("MapsActivity", "Current location is null");
             }
         });
+
+        return userLocation;
     }
 
     private void onLocationChanged(LatLng newLocation) {
         // Add a marker in user's current location (or default location) and move the camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 13));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 13));
         Log.d("MapsActivity", "Marker moved to " + newLocation.latitude + ", " + newLocation.longitude);
     }
 
+    public void requestLocationPermissions() {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        && ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            onPermissionsGranted();
+        }
+        else {
+            Log.d("FoodOasis", "Permissions Needed");
+            locationPermissionRequest.launch(new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION});
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    public void onPermissionsGranted() {
+        getCurrentLocation();
+        googleMap.setMyLocationEnabled(true);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        onLocationChanged(userLocation);
+    }
 
     /**
      * Manipulates the map once available.
@@ -265,47 +262,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        this.googleMap = googleMap;
 
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            getCurrentLocation();
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        } else {
-            locationPermissionRequest.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION});
-        }
+        requestLocationPermissions();
+
         // set map type
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         // set value of marker of map
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
+        this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
 
         // Marker click listener to enable favorite location button
-        mMap.setOnMarkerClickListener(marker -> {
+        this.googleMap.setOnMarkerClickListener(marker -> {
             selectedMarkerPlaceId = (String) marker.getTag();
             Log.d("MapsActivity", "Selected place ID: " + selectedMarkerPlaceId);
             addToFavoritesButton.setEnabled(true);
             return false;
         });
 
-        mMap.setOnMapClickListener(latLng -> {
+        this.googleMap.setOnMapClickListener(latLng -> {
             addToFavoritesButton.setEnabled(false);
         });
-    }
-
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 44) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation();
-
-            }
-        }
     }
 
     // for execute url
@@ -367,7 +344,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
-            mMap.clear();
+            googleMap.clear();
 
             //after getting nearest stores show them on google map
             for (int i = 0; i < hashMaps.size(); i++) {
@@ -385,7 +362,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 MarkerOptions mMarker = new MarkerOptions(); // new marker
                 mMarker.position(latLng); // set marker
                 mMarker.title(name);
-                Marker newMarker = mMap.addMarker(mMarker);
+                Marker newMarker = googleMap.addMarker(mMarker);
                 newMarker.setTag(place_id);
             }
 

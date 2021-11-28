@@ -25,6 +25,7 @@ before_script:
 script:
   - ./gradlew clean build
   - ./gradlew test
+  - ./gradlew connectedAndroidTest
   - ./gradlew build check
 
 before_cache:
