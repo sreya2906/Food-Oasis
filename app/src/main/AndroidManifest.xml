@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FoodOasis">
         <activity
+            android:name=".FavoritesPlacesActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashScreenActivity"
             android:exported="true">
             <intent-filter>
@@ -40,9 +43,7 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
-
-        </activity>
+            android:label="@string/title_activity_maps"></activity>
     </application>
 
 </manifest>
