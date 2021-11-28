@@ -73,6 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private AutocompleteSupportFragment locationEntry;
     private Button nearCurrentButton, nearInputButton, addToFavoritesButton, showFavoriteButton;
     FavoritesPlaces favoritesPlaces;
+    DatabseAdapter db;
 
 
     @SuppressLint("WrongConstant")
@@ -168,16 +169,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             FetchPlaceRequest request = FetchPlaceRequest.newInstance(selectedMarkerPlaceId, placeFields);
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
-                if (!favoriteLocationsList.contains(place)) {
-                    favoriteLocationsList.add(place);
+//                if (!favoriteLocationsList.contains(place)) {
+//                    favoriteLocationsList.add(place);
                     LatLng latLng = place.getLatLng();
                     String latitude = latLng.latitude + "";
                     String longitude = latLng.longitude + "";
 
                     int status;
-                    DatabseAdapter db = new DatabseAdapter(MapsActivity.this);
+
                     status = db.checkLocation(latitude, longitude);
-                    if (status != 1) {
+                    Log.e("status",status+"");
+                    if (status==1) {
                         FavoritesPlaces favoritesPlaces = new FavoritesPlaces();
                         favoritesPlaces.setPlaceName(place.getName().toString());
                         favoritesPlaces.setWebsite(place.getWebsiteUri().toString());
@@ -191,10 +193,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
                         Log.d("FoodOasis", "Place already in favorites");
                     }
-                } else {
-                    Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
-                    Log.d("FoodOasis", "Place already in favorites");
-                }
+//                } else {
+//                    Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
+//                    Log.d("FoodOasis", "Place already in favorites");
+//                }
             });
         });
         showFavoriteButton.setOnClickListener(new View.OnClickListener() {
@@ -223,6 +225,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         showFavoriteButton = findViewById(R.id.showFavoriteButton);
         addToFavoritesButton.setEnabled(false);
         favoriteLocationsList = new ArrayList<Place>();
+        db = new DatabseAdapter(MapsActivity.this);
     }
 
 

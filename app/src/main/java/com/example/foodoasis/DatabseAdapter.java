@@ -69,7 +69,7 @@ public class DatabseAdapter extends SQLiteOpenHelper {
                 favoritesPlaces.getPlaceName() + "', '" +
                 favoritesPlaces.getWebsite() + "', '" +
                 favoritesPlaces.getPhoneNumber() + "', '" +
-                favoritesPlaces.getLongitude() + "', '" +
+                favoritesPlaces.getLatitude() + "', '" +
                 favoritesPlaces.getLongitude() + "')";
         Log.e("query", query);
 
@@ -96,7 +96,7 @@ public class DatabseAdapter extends SQLiteOpenHelper {
                 favoritesPlaces.setPlaceName(cursor.getString(1));
                 favoritesPlaces.setWebsite(cursor.getString(2));
                 favoritesPlaces.setPhoneNumber(cursor.getString(3));
-
+                Log.e("Data",cursor.getString(0)+" "+cursor.getString(1)+" "+cursor.getString(2)+" "+cursor.getString(3));
                 LocationsList.add(favoritesPlaces);
 
             } while (cursor.moveToNext());
@@ -113,12 +113,16 @@ public class DatabseAdapter extends SQLiteOpenHelper {
             Cursor cursor = db.rawQuery(query, null);
             if (cursor.moveToFirst()) {
                 do {
-                    if (cursor.getString(0) == "1") {
-                        return 1;
-                    } else {
+                    if (Integer.parseInt(cursor.getString(0))!=0) {
+                        Log.e("count",cursor.getString(0).toString());
+
                         Log.e("Already", "exists");
 
                         return 0;
+                    } else {
+                        Log.e("count",cursor.getString(0).toString());
+
+                        return 1;
 
                     }
 
@@ -134,7 +138,7 @@ public class DatabseAdapter extends SQLiteOpenHelper {
 
     }
 
-    public void deleteLocation(int location_id) {
+    public void deleteLocation(String location_id) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         String query = "DELETE FROM location_table WHERE location_id=" + location_id;
