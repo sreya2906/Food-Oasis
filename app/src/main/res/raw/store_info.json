@@ -1,0 +1,6 @@
+[
+  {"store_id": 1, "store_name":"food1", "store_type":"grocery" , "store_address":"1/2 park1", "store_status": "open"},
+  {"store_id": 2, "store_name":"food2", "store_type":"restaurant", "store_address":"1/2 park2", "store_status": "open"},
+  {"store_id": 3, "store_name":"food3", "store_type":"grocery", "store_address":"1/2 park3", "store_status": "open"},
+  {"store_id": 4, "store_name":"food4", "store_type":"grocery", "store_address":"1/2 park3", "store_status": "closed"}
+]
