@@ -15,6 +15,7 @@ public class FavoritesPlacesActivity extends AppCompatActivity {
     ArrayList<FavoritesPlaces> favoritesPlacesList;
     DatabseAdapter dbAdapter;
     TextView txtPlaceNotFound;
+    LocationAdapter adapter;
 
 
     @Override
@@ -23,7 +24,6 @@ public class FavoritesPlacesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_favorites_places);
         txtPlaceNotFound = findViewById(R.id.txtPlaceNotFound);
         list = (RecyclerView) findViewById(R.id.favoriteLocationList);
-
         txtPlaceNotFound.setVisibility(View.GONE);
 
         dbAdapter = new DatabseAdapter(this);
@@ -39,10 +39,12 @@ public class FavoritesPlacesActivity extends AppCompatActivity {
             list.setVisibility(View.VISIBLE);
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(FavoritesPlacesActivity.this);
             list.setLayoutManager(layoutManager);
-            LocationAdapter Adapter = new LocationAdapter(FavoritesPlacesActivity.this, favoritesPlacesList);
-            list.setAdapter(Adapter);
+            adapter = new LocationAdapter(FavoritesPlacesActivity.this, favoritesPlacesList, txtPlaceNotFound);
+            list.setAdapter(adapter);
         }
 
 
     }
+
+
 }
