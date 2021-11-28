@@ -86,8 +86,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         locationPermissionRequest = registerForActivityResult(new ActivityResultContracts
                 .RequestMultiplePermissions(), result -> {
-            Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
-            Boolean coarseLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
+            Boolean fineLocationGranted = result.get(Manifest.permission.ACCESS_FINE_LOCATION);
+            Boolean coarseLocationGranted = result.get(Manifest.permission.ACCESS_COARSE_LOCATION);
             Log.d("FoodOasis", "Request sent");
             if (fineLocationGranted != null && fineLocationGranted) {
                 onPermissionsGranted();
