@@ -24,7 +24,7 @@ before_install:
   - unzip commandlinetools.zip -d $ANDROID_HOME/
   - yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager "platforms;android-${TARGET_VERSION}" --sdk_root=$ANDROID_HOME
   - yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" --sdk_root=$ANDROID_HOME
-  - echo "y" | android update sdk -a --no-ui --filter --force build-tools-31.0.0
+  - echo "y" | android update sdk -a --no-ui --filter build-tools-31.0.0 --force
 
 before_script:
   - touch local.properties
