@@ -1,5 +1,4 @@
 language: android
-jdk: oraclejdk11
 dist: trusty
 android:
   components:
