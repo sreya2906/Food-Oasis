@@ -11,10 +11,19 @@ android:
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-24
 
+env:
+  global:
+    - TARGET_VERSION=31
+    - ANDROID_BUILD_TOOLS_VERSION=31.0.0
+    - ANDROID_HOME=~/android-sdk
+
 before_install:
   - chmod +x gradlew
-  - yes | sdkmanager "build-tools;31.0.0"
-  - yes | sdkmanager "platforms;android-31"
+  - touch $HOME/.android/repositories.cfg
+  - wget "https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip" -O commandlinetools.zip
+  - unzip commandlinetools.zip -d $ANDROID_HOME/
+  - yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager "platforms;android-${TARGET_VERSION}" --sdk_root=$ANDROID_HOME
+  - yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" --sdk_root=$ANDROID_HOME
 
 before_script:
   - touch local.properties
