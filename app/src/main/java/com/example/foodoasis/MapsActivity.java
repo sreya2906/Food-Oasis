@@ -6,9 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -57,19 +61,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private PlacesClient placesClient;
-    private String apiKey = BuildConfig.MAPS_API_KEY;
+    private String apiKey = "AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk";
     private ActivityMapsBinding binding;
     private ActivityResultLauncher<String[]> locationPermissionRequest;
     private FusedLocationProviderClient fusedLocationClient;
     private LatLng userLocation = new LatLng(30, -95);
     private LatLng inputLocation;
     private String selectedMarkerPlaceId;
-    private ArrayList<Place> favoriteLocations;
+    private ArrayList<Place> favoriteLocationsList;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
-    private Button nearCurrentButton, nearInputButton, addToFavoritesButton;
+    private Button nearCurrentButton, nearInputButton, addToFavoritesButton, showFavoriteButton;
+    FavoritesPlaces favoritesPlaces;
 
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,20 +138,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         nearCurrentButton.setOnClickListener(view -> {
 
             //Set url
-            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
                     "location=" + userLocation.latitude + "," + userLocation.longitude + //location with latitude and longitude
                     "&keyword=grocery_store" +
                     "&maxprice=3" + //exclude expensive results
                     "&radius=10000" + // radius
                     "&key=" + getResources().getString(R.string.google_map_key); // google Api key
 
-            Log.d("Url",url);
+            Log.d("Url", url);
 
             new PlaceTask().execute(url);
         });
 
         nearInputButton.setOnClickListener(view -> {
-            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
                     "location=" + inputLocation.latitude + "," + inputLocation.longitude + //location with latitude and longitude
                     "&keyword=grocery_store" +
                     "&maxprice=3" + //exclude expensive results
@@ -158,18 +164,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         addToFavoritesButton.setOnClickListener(view -> {
-            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.LAT_LNG);
             FetchPlaceRequest request = FetchPlaceRequest.newInstance(selectedMarkerPlaceId, placeFields);
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
-                if (!favoriteLocations.contains(place)) {
-                    favoriteLocations.add(place);
-                    Log.i("FoodOasis", place.getName() + " added to favorites");
-                }
-                else {
-                    Log.i("FoodOasis", "Place already in favorites");
+                if (!favoriteLocationsList.contains(place)) {
+                    favoriteLocationsList.add(place);
+                    LatLng latLng = place.getLatLng();
+                    String latitude = latLng.latitude + "";
+                    String longitude = latLng.longitude + "";
+
+                    int status;
+                    DatabseAdapter db = new DatabseAdapter(MapsActivity.this);
+                    status = db.checkLocation(latitude, longitude);
+                    if (status != 1) {
+                        FavoritesPlaces favoritesPlaces = new FavoritesPlaces();
+                        favoritesPlaces.setPlaceName(place.getName().toString());
+                        favoritesPlaces.setWebsite(place.getWebsiteUri().toString());
+                        favoritesPlaces.setPhoneNumber(place.getPhoneNumber().toString());
+                        favoritesPlaces.setLatitude(latLng.latitude + "");
+                        favoritesPlaces.setLongitude(latLng.longitude + "");
+                        db.addLocation(favoritesPlaces);
+                        Toast.makeText(MapsActivity.this, "Successfully added to Favorites", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
+                        Log.d("FoodOasis", "Place already in favorites");
+                    }
+                } else {
+                    Toast.makeText(MapsActivity.this, "Place already in favorites", Toast.LENGTH_SHORT).show();
+                    Log.d("FoodOasis", "Place already in favorites");
                 }
             });
+        });
+        showFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapsActivity.this, FavoritesPlacesActivity.class);
+                startActivity(intent);
+
+            }
         });
     }
 
@@ -186,8 +220,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         nearInputButton = findViewById(R.id.nearInputButton);
         nearInputButton.setEnabled(false);
         addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
+        showFavoriteButton = findViewById(R.id.showFavoriteButton);
         addToFavoritesButton.setEnabled(false);
-        favoriteLocations = new ArrayList<Place>();
+        favoriteLocationsList = new ArrayList<Place>();
     }
 
 
@@ -212,7 +247,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 13));
         Log.d("MapsActivity", "Marker moved to " + newLocation.latitude + ", " + newLocation.longitude);
     }
-
 
 
     /**
@@ -340,6 +374,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String place_id = hashMap.get("place_id");
                 double lat = Double.parseDouble(hashMap.get("lat"));
                 double lng = Double.parseDouble(hashMap.get("lng"));
+
 
                 LatLng latLng = new LatLng(lat, lng);  // merged latitude and longitude
                 MarkerOptions mMarker = new MarkerOptions(); // new marker
