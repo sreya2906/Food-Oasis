@@ -148,6 +148,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("Url", url);
 
             new PlaceTask().execute(url);
+            onLocationChanged(userLocation);
         });
 
         nearInputButton.setOnClickListener(view -> {
@@ -161,6 +162,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("Url", url);
 
             new PlaceTask().execute(url);
+            nearInputButton.setEnabled(false);
         });
 
         addToFavoritesButton.setOnClickListener(view -> {
