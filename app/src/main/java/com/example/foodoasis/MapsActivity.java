@@ -64,7 +64,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment locationEntry;
     private Button nearCurrentButton, nearInputButton, addToFavoritesButton, showFavoriteButton;
-    DatabseAdapter db;
+    DatabaseAdapter db;
 
 
     @SuppressLint("WrongConstant")
@@ -205,7 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
         showFavoriteButton = findViewById(R.id.showFavoriteButton);
         addToFavoritesButton.setEnabled(false);
-        db = new DatabseAdapter(MapsActivity.this);
+        db = new DatabaseAdapter(MapsActivity.this);
     }
 
 

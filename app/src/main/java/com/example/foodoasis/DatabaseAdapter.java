@@ -9,7 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-public class DatabseAdapter extends SQLiteOpenHelper {
+public class DatabaseAdapter extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "Locations";
@@ -23,7 +23,7 @@ public class DatabseAdapter extends SQLiteOpenHelper {
     private static final String KEY_LOCATION_LONGITUDE = "location_longitude";
 
 
-    public DatabseAdapter(Context context) {
+    public DatabaseAdapter(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -75,7 +75,7 @@ public class DatabseAdapter extends SQLiteOpenHelper {
 
         try {
             db.execSQL(query);
-            Log.e("Sucessfully", "inserted");
+            Log.e("Successfully", "inserted");
         } catch (SQLException e) {
             Log.e("Error", e.getMessage() + "");
         }

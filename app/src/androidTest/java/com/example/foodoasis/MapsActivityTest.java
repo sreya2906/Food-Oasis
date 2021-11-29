@@ -19,7 +19,7 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
@@ -31,7 +31,6 @@ import java.io.IOException;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class MapsActivityTest {
-
     @Rule
     public ActivityTestRule<MapsActivity> mActivityTestRule = new ActivityTestRule<>(MapsActivity.class);
 

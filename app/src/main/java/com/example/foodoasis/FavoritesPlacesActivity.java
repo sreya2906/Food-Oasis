@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class FavoritesPlacesActivity extends AppCompatActivity {
     RecyclerView list;
     ArrayList<FavoritesPlaces> favoritesPlacesList;
-    DatabseAdapter dbAdapter;
+    DatabaseAdapter dbAdapter;
     TextView txtPlaceNotFound;
     LocationAdapter adapter;
 
@@ -26,7 +26,7 @@ public class FavoritesPlacesActivity extends AppCompatActivity {
         list = (RecyclerView) findViewById(R.id.favoriteLocationList);
         txtPlaceNotFound.setVisibility(View.GONE);
 
-        dbAdapter = new DatabseAdapter(this);
+        dbAdapter = new DatabaseAdapter(this);
         favoritesPlacesList = dbAdapter.getDetails();
 
 

@@ -2,14 +2,10 @@ package com.example.foodoasis;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.database.SQLException;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,7 +35,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Holder
         holder.iconRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabseAdapter db = new DatabseAdapter(context);
+                DatabaseAdapter db = new DatabaseAdapter(context);
                 db.deleteLocation(list.get(position).getLocation_id().toString());
                 list.remove(position);
                 notifyDataSetChanged();
